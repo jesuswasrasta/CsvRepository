@@ -46,12 +46,17 @@ namespace Farmaci
 		public void Store(T entity)
 		{
 			var sb = new StringBuilder();
-			var propertyInfos = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+			var propertyInfos = entity.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
 			var properties = new List<PropertyInfo>(propertyInfos);
 
 			foreach (PropertyInfo propertyInfo in properties)
 			{
-				var propertyValue = propertyInfo.GetValue(this, null) ?? string.Empty;
+				var attributes = propertyInfo.GetCustomAttributes(typeof (CsvAttribute), false);
+				if(attributes.Contains(new IgnoredAttribute()))
+				{
+					continue;
+				}
+				var propertyValue = propertyInfo.GetValue(entity, null) ?? string.Empty;
 				sb.AppendFormat("{0}{1}", propertyValue, _separator);
 			}
 			sb.Append(Environment.NewLine);

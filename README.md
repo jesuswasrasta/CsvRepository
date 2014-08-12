@@ -1,4 +1,4 @@
-DBreezeRepository
-=================
+CsvRepository
+=============
 
-Repository pattern implementation, just to give DBreeeze NoSQL database a try.
+Humble repository for CRUD operations over CSV files

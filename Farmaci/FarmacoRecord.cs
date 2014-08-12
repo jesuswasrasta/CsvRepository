@@ -13,6 +13,7 @@ namespace Farmaci
 	public class FarmacoRecord : CsvRecord
 	{
 		#region Properties
+		[Ignored]
 		public override int Id
 		{
 			get { return GetHashCode(); }
@@ -24,6 +25,7 @@ namespace Farmaci
 
 		public string Targa { get; set; }
 
+		[Ignored]
 		public override List<ICsvField> Fields { get; protected set; }
 		#endregion
 
