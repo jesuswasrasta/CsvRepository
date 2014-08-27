@@ -61,7 +61,7 @@ namespace Farmaci
 			}
 			sb.Append(Environment.NewLine);
 			
-			using (var sw = new StreamWriter(_csvFullpath))
+			using (var sw = new StreamWriter(_csvFullpath, true))
 			{
 				sw.Write(sb.ToString());
 			}
