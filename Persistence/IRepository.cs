@@ -14,7 +14,8 @@ namespace Persistence
 
 		T Select(T entity);
 
-		IQueryable<T> Select(Predicate<T> predicate);
+		//IQueryable<T> Select(Predicate<T> predicate);
+		IQueryable<T> Select(Func<T, bool> func);
 
 		void Delete(T entity);
 	}
