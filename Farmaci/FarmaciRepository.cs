@@ -49,7 +49,7 @@ namespace Farmaci
 			var propertyInfos = entity.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
 			var properties = new List<PropertyInfo>(propertyInfos);
 
-			foreach (PropertyInfo propertyInfo in properties)
+			foreach (var propertyInfo in properties)
 			{
 				var attributes = propertyInfo.GetCustomAttributes(typeof (CsvAttribute), false);
 				if(attributes.Contains(new IgnoredAttribute()))
