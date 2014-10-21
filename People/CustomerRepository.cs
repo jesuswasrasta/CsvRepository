@@ -6,24 +6,23 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-using Persistence;
 using Persistence.Csv;
 
 
 #endregion
 
 
-namespace Farmaci
+namespace People
 {
 	/// <summary>
-	/// A very bare CSV repository fo <see cref="FarmacoRecord"/>.
+	/// A very bare CSV repository fo <see cref="CustomerRecord"/>.
 	/// <remarks>
 	///		This in a very dumb implementation, just for simple and small CSV files.
 	///		It lacks header row management.
 	/// </remarks>
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public class FarmaciRepository<T> : ICsvRepository<T> where T : CsvRecord, new()
+	public class CustomerRepository<T> : ICsvRepository<T> where T : CsvRecord, new()
 	{
 		#region Costants
 		private const int BufferSize = 64 * 1024;
@@ -42,7 +41,7 @@ namespace Farmaci
 
 
 		#region Constructors
-		public FarmaciRepository(string csvFullpath, char separator)
+		public CustomerRepository(string csvFullpath, char separator)
 		{
 			if (csvFullpath == null)
 			{
@@ -233,7 +232,7 @@ namespace Farmaci
 			}
 		}
 
-		~FarmaciRepository()
+		~CustomerRepository()
 		{
 			Dispose(false);
 		}

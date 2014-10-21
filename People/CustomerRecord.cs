@@ -1,21 +1,22 @@
 ﻿#region Usings
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 
-using Persistence;
 using Persistence.Csv;
 
 
 #endregion
 
 
-namespace Farmaci
+namespace People
 {
-	public class FarmacoRecord : CsvRecord
+	/// <summary>
+	/// Defines a <see cref="CsvRecord"/> for an hypotetical customer.
+	/// </summary>
+	public class CustomerRecord : CsvRecord
 	{
 		#region Properties
 		public override int Id
@@ -23,19 +24,19 @@ namespace Farmaci
 			get { return GetHashCode(); }
 		}
 
-		[Field(0, "Minsan del prodotto")]
-		public string Minsan { get; set; }
+		[Field(0, "Firstname of the customer")]
+		public string Firstname { get; set; }
 
-		[Field(1, "Descrizione del farmaco in Banca Dati Federfarma")]
-		public string Description { get; set; }
+		[Field(1, "Lastname of the customer")]
+		public string Lastname { get; set; }
 
 		[Field(2, "Targatura della scatola")]
-		public string Targa { get; set; }
+		public string BirthDay { get; set; }
 		#endregion
 
 
 		#region Constructors
-		public FarmacoRecord()
+		public CustomerRecord()
 		{
 		}
 		#endregion
