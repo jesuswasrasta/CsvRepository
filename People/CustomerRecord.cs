@@ -30,7 +30,7 @@ namespace People
 		[Field(1, "Lastname of the customer")]
 		public string Lastname { get; set; }
 
-		[Field(2, "Targatura della scatola")]
+		[Field(2, "Birthday of the cusotmer")]
 		public string BirthDay { get; set; }
 		#endregion
 
@@ -87,6 +87,36 @@ namespace People
 			sb.Append(Environment.NewLine);
 
 			return sb.ToString();
+		}
+		#endregion
+
+
+		#region Overridden Methods
+		//See: http://msdn.microsoft.com/en-us/library/ms173147%28VS.80%29.aspx
+		public override bool Equals(object obj)
+		{
+			var customerRecord = obj as CustomerRecord;
+			return customerRecord != null &&
+			       customerRecord.Firstname != null &&
+			       customerRecord.Firstname.Equals(Firstname) &&
+			       customerRecord.Lastname != null &&
+			       customerRecord.Lastname.Equals(Lastname) &&
+			       customerRecord.BirthDay != null &&
+			       customerRecord.BirthDay.Equals(BirthDay);
+		}
+
+		public override int GetHashCode()
+		{
+			//see http://stackoverflow.com/questions/263400/what-is-the-best-algorithm-for-an-overridden-system-object-gethashcode
+			unchecked // Overflow is fine, just wrap
+			{
+				int hash = 17;
+				// Remeber nullity checks, of course :)
+				hash = hash * 23 + (string.IsNullOrEmpty(Firstname) ? 0 : Firstname.GetHashCode());
+				hash = hash * 23 + (string.IsNullOrEmpty(Lastname) ? 0 : Lastname.GetHashCode());
+				hash = hash * 23 + (string.IsNullOrEmpty(BirthDay) ? 0 : BirthDay.GetHashCode());
+				return hash;
+			}
 		}
 		#endregion
 	}
