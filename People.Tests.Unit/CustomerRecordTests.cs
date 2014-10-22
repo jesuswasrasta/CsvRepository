@@ -30,10 +30,11 @@ namespace People.Tests.Unit
 
 
 		#region Store()
-		[Test(Description = "Customer loaded from csv is the same as one created programmatically")]
-		public void LoadedCustomerSameAsCreatedCustomer()
+		[Test(Description = "Customer loaded from csv is NOT the same as one created programmatically: Id is different")]
+		public void LoadedCustomer_NOT_TheSameAsCreatedCustomer()
 		{
 			const string lineExpected = "Niklaus;Wirth;02/15/1934;\r\n";
+			
 			var customer = new CustomerRecord();
 			customer.Load(lineExpected, ';');
 
@@ -44,7 +45,11 @@ namespace People.Tests.Unit
 				BirthDay = "02/15/1934"
 			};
 
-			Assert.AreEqual(expectedCustomer, customer);
+			Assert.AreEqual(expectedCustomer.BirthDay, customer.BirthDay);
+			Assert.AreEqual(expectedCustomer.Firstname, customer.Firstname);
+			Assert.AreEqual(expectedCustomer.Lastname, customer.Lastname);
+
+			Assert.AreNotEqual(expectedCustomer, customer);
 		}
 
 

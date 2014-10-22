@@ -19,11 +19,6 @@ namespace People
 	public class CustomerRecord : CsvRecord
 	{
 		#region Properties
-		public override int Id
-		{
-			get { return GetHashCode(); }
-		}
-
 		[Field(0, "Firstname of the customer")]
 		public string Firstname { get; set; }
 
@@ -84,7 +79,6 @@ namespace People
 					sb.AppendFormat("{0}{1}", propertyValue, separator);
 				}
 			}
-			sb.Append(Environment.NewLine);
 
 			return sb.ToString();
 		}
@@ -95,14 +89,17 @@ namespace People
 		//See: http://msdn.microsoft.com/en-us/library/ms173147%28VS.80%29.aspx
 		public override bool Equals(object obj)
 		{
+			//var customerRecord = obj as CustomerRecord;
+			//return customerRecord != null &&
+			//	   customerRecord.Firstname != null &&
+			//	   customerRecord.Firstname.Equals(Firstname) &&
+			//	   customerRecord.Lastname != null &&
+			//	   customerRecord.Lastname.Equals(Lastname) &&
+			//	   customerRecord.BirthDay != null &&
+			//	   customerRecord.BirthDay.Equals(BirthDay);
+
 			var customerRecord = obj as CustomerRecord;
-			return customerRecord != null &&
-			       customerRecord.Firstname != null &&
-			       customerRecord.Firstname.Equals(Firstname) &&
-			       customerRecord.Lastname != null &&
-			       customerRecord.Lastname.Equals(Lastname) &&
-			       customerRecord.BirthDay != null &&
-			       customerRecord.BirthDay.Equals(BirthDay);
+			return customerRecord != null && customerRecord.Id.Equals(Id);
 		}
 
 		public override int GetHashCode()
@@ -110,11 +107,15 @@ namespace People
 			//see http://stackoverflow.com/questions/263400/what-is-the-best-algorithm-for-an-overridden-system-object-gethashcode
 			unchecked // Overflow is fine, just wrap
 			{
+				//int hash = 17;
+				//// Remeber nullity checks, of course :)
+				//hash = hash * 23 + (string.IsNullOrEmpty(Firstname) ? 0 : Firstname.GetHashCode());
+				//hash = hash * 23 + (string.IsNullOrEmpty(Lastname) ? 0 : Lastname.GetHashCode());
+				//hash = hash * 23 + (string.IsNullOrEmpty(BirthDay) ? 0 : BirthDay.GetHashCode());
+				//return hash;
+
 				int hash = 17;
-				// Remeber nullity checks, of course :)
-				hash = hash * 23 + (string.IsNullOrEmpty(Firstname) ? 0 : Firstname.GetHashCode());
-				hash = hash * 23 + (string.IsNullOrEmpty(Lastname) ? 0 : Lastname.GetHashCode());
-				hash = hash * 23 + (string.IsNullOrEmpty(BirthDay) ? 0 : BirthDay.GetHashCode());
+				hash = hash * 23 + Id.GetHashCode();
 				return hash;
 			}
 		}

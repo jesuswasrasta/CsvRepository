@@ -1,34 +1,26 @@
 ﻿namespace Persistence.Csv
 {
 	/// <summary>
-	/// Only properties decorated with this attribute will be exported to CSV file.
+	///     Only properties decorated with this attribute will be exported to CSV file.
 	/// </summary>
 	public class FieldAttribute : CsvAttribute
 	{
 		#region Fields
 		/// <summary>
-		/// Gets the column order of the resulting CSV line exported.
+		///     Gets the column order of the resulting CSV line exported.
 		/// </summary>
 		/// <value>
-		/// The order.
+		///     The order.
 		/// </value>
-		public ushort Order
-		{
-			get;
-			private set;
-		}
+		public ushort Order { get; private set; }
 
 		/// <summary>
-		/// Gets the (optional) description of the field.
+		///     Gets the (optional) description of the field.
 		/// </summary>
 		/// <value>
-		/// The description.
+		///     The description.
 		/// </value>
-		public string Description
-		{
-			get;
-			private set;
-		}
+		public string Description { get; private set; }
 		#endregion
 
 

@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C4476500-0C57-4B67-8ABF-6864A4F8B09B}</ProjectGuid>
+    <ProjectGuid>{C3AF3565-7143-4B4C-9E5F-65CE591529A3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Persistence.Csv.Tests</RootNamespace>
-    <AssemblyName>Persistence.Csv.Tests</AssemblyName>
+    <RootNamespace>People.Tests.Integration</RootNamespace>
+    <AssemblyName>People.Tests.Integration</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -50,13 +50,8 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Moq">
-      <HintPath>..\packages\Moq.4.2.1408.0717\lib\net35\Moq.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -66,12 +61,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CustomerRepositoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\People\People.csproj">
+      <Project>{F2AAB0FC-373E-4678-8410-2D7464C6BBF0}</Project>
+      <Name>People</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Persistence.Csv\Persistence.Csv.csproj">
       <Project>{A76420AE-CBEF-4402-BA89-4FBFCBD6144A}</Project>
       <Name>Persistence.Csv</Name>

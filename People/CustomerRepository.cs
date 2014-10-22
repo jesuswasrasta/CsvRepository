@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Timers;
 
 using Persistence.Csv;
 
@@ -22,7 +23,7 @@ namespace People
 	/// </remarks>
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public class CustomerRepository<T> : ICsvRepository<T> where T : CsvRecord, new()
+	public class CustomerRepository<T> : ICsvRepository<T> where T : CustomerRecord, new()
 	{
 		#region Costants
 		private const int BufferSize = 64 * 1024;
@@ -30,26 +31,34 @@ namespace People
 		
 
 		#region Fields
-		private readonly string _csvFullpath;
+		private readonly ILineFile _lineFile;
 		private readonly char _separator;
-		private readonly IList<T> _entities;
+		private readonly bool _hasHeader;
+		private readonly IDictionary<T, RecordStatus> _entities;
 
-		private bool _disposed = false;
-		private bool _opened = false;
-		private static object _openLock = new object();
+		private bool _disposed;
+		private bool _opened;
+		private static readonly object _openLock = new object();
+		//private Timer _timer;
 		#endregion
 
 
 		#region Constructors
-		public CustomerRepository(string csvFullpath, char separator)
+		public CustomerRepository(ILineFile lineFile, char separator, bool hasHeader = false)
 		{
-			if (csvFullpath == null)
+			if (lineFile == null)
 			{
-				throw new ArgumentNullException("csvFullpath");
+				throw new ArgumentNullException("lineFile");
 			}
-			_csvFullpath = csvFullpath;
+			_lineFile = lineFile;
 			_separator = separator;
-			_entities = new List<T>();
+			_hasHeader = hasHeader;
+			_entities = new Dictionary<T, RecordStatus>();
+
+			//_timer = new Timer();
+			//_timer.AutoReset = true;
+			//_timer.Interval = 1000;
+			//_timer.Elapsed += UpdateFile;
 		}
 		#endregion
 
@@ -68,31 +77,25 @@ namespace People
 					return;
 				}
 
-				//nando20140827: leggo tutto il csv e carico le entità in una collezione locale
-				//BUG! 20140827: devo skippare la prima riga nel caso contenesse le intestazioni delle colonne
-				//string[] lines = File.ReadAllLines(_csvFullpath);
-				//foreach (var line in lines)
-				//{
-				//	var entity = new T();
-				//	var loaded = entity.Load(line, _separator);
-				//	if (loaded)
-				//	{
-				//		_entities.Add(entity);
-				//	}
-				//}
-				//_opened = true;
+				var lines = _lineFile.ReadAllLines();
 
-				using (var sr = new StreamReader(_csvFullpath, Encoding.ASCII))
+				foreach (var line in lines)
 				{
-					string line = sr.ReadLine();
+					if (_hasHeader)
+					{
+						//Skip first line...
+						continue;
+					}
 					var entity = new T();
 					var loaded = entity.Load(line, _separator);
 					if (loaded)
 					{
-						_entities.Add(entity);
+						_entities.Add(new KeyValuePair<T, RecordStatus>(entity, RecordStatus.Stored));
 					}
 				}
+
 				_opened = true;
+				//_timer.Start();
 			}
 		}
 
@@ -100,34 +103,34 @@ namespace People
 		{
 			if (!_opened)
 			{
-				throw new RepositoryClosedException("Il repository è chiuso.");
+				throw new RepositoryException("Repository is closed.");
 			}
 
-			if (_entities.Contains(entity))
+			if (_entities.Keys.Contains(entity))
 			{
 				_entities.Remove(entity);
 			}
-			_entities.Add(entity);
+			_entities.Add(new KeyValuePair<T, RecordStatus>(entity, RecordStatus.Changed));
 		}
 
 		public T Select(T entity)
 		{
 			if (!_opened)
 			{
-				throw new RepositoryClosedException("Il repository è chiuso.");
+				throw new RepositoryException("Repository is closed.");
 			}
 
-			return _entities.FirstOrDefault(e => e.Equals(entity));
+			return _entities.FirstOrDefault(e => e.Key.Equals(entity)).Key;
 		}
 
 		public IQueryable<T> Select(Func<T, bool> func)
 		{
 			if (!_opened)
 			{
-				throw new RepositoryClosedException("Il repository è chiuso.");
+				throw new RepositoryException("Repository is closed.");
 			}
 
-			var result = _entities.Where(func);
+			var result = _entities.Keys.Where(func);
 			return result.AsQueryable();
 		}
 
@@ -135,13 +138,14 @@ namespace People
 		{
 			if (!_opened)
 			{
-				throw new RepositoryClosedException("Il repository è chiuso.");
+				throw new RepositoryException("Repository is closed.");
 			}
 
-			if (_entities.Contains(entity))
+			if (_entities.Keys.Contains(entity))
 			{
 				_entities.Remove(entity);
 			}
+			_entities.Add(new KeyValuePair<T, RecordStatus>(entity, RecordStatus.Deleted));
 		}
 
 		public void Close()
@@ -157,19 +161,11 @@ namespace People
 					return;
 				}
 
+				//_timer.Stop();
+				UpdateFile(this, null);
+				
+				//BUG: and the header?!
 
-				//nando20140828: File.WriteAllLines dovrebbe essere Lazy by design, verifica
-
-				//TODO 20140827: salva le entità nel file di testo, salva e chiudi il file
-				using (var sw = new StreamWriter(_csvFullpath, false, Encoding.ASCII, BufferSize))
-				{
-					foreach (var entity in _entities)
-					{
-						string line = entity.ToLine(_separator);
-						sw.Write(line);
-					}
-					sw.Flush();
-				}
 				_opened = false;
 			}
 		}
@@ -183,40 +179,6 @@ namespace People
 		#endregion
 
 
-		#region Private Methods
-		private void Update(T entity)
-		{
-			throw new NotImplementedException();
-		}
-
-		private void Insert(T entity)
-		{
-			var sb = new StringBuilder();
-			var propertyInfos = entity.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-			var properties = new List<PropertyInfo>(propertyInfos);
-			var comparer = new FieldAttributeComparer();
-			properties.Sort(comparer);
-
-			foreach (PropertyInfo propertyInfo in properties)
-			{
-				var attributes = propertyInfo.GetCustomAttributes(typeof(CsvAttribute), false);
-				if (!attributes.Contains(typeof (CsvAttribute)))
-				{
-					continue;
-				}
-				var propertyValue = propertyInfo.GetValue(entity, null) ?? string.Empty;
-				sb.AppendFormat("{0}{1}", propertyValue, _separator);
-			}
-			sb.Append(Environment.NewLine);
-			
-			using (var sw = new StreamWriter(_csvFullpath, true))
-			{
-				sw.Write(sb.ToString());
-			}
-		}
-		#endregion
-
-
 		#region IDisposable implementation
 		protected virtual void Dispose(bool disposing)
 		{
@@ -224,10 +186,9 @@ namespace People
 			{
 				if (disposing)
 				{
-					//TODO 20140827: scrivi i record nel file csv e chiudilo
+					Close();
 				}
 				// Unmanaged resources are released here.
-
 				_disposed = true;
 			}
 		}
@@ -235,6 +196,47 @@ namespace People
 		~CustomerRepository()
 		{
 			Dispose(false);
+		}
+		#endregion
+
+
+		#region Private Methods
+		private string GetHeader()
+		{
+			var sb = new StringBuilder();
+			var propertyInfos = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+			var properties = new List<PropertyInfo>(propertyInfos);
+			var comparer = new FieldAttributeComparer();
+			properties.Sort(comparer);
+
+			foreach (PropertyInfo propertyInfo in properties)
+			{
+				var fieldAttribute = propertyInfo.GetCustomAttributes(typeof(FieldAttribute), false).FirstOrDefault() as FieldAttribute;
+				if (fieldAttribute != null)
+				{
+					var propertyName = propertyInfo.Name;
+					sb.AppendFormat("{0}{1}", propertyName, _separator);
+				}
+			}
+			sb.Append(Environment.NewLine);
+			return sb.ToString();
+		}
+
+
+		private void UpdateFile(object sender, ElapsedEventArgs args)
+		{
+			lock (_openLock)
+			{
+				//Delete lines from file
+				var entitiesToDelete = _entities.Where(e => e.Value == RecordStatus.Deleted || e.Value == RecordStatus.Changed);
+				var linesToDelete = entitiesToDelete.Select(pair => pair.Key.ToLine(_separator)).ToList();
+				_lineFile.DeleteLines(linesToDelete.ToArray());
+
+				//Adds lines to file
+				var entitiesToAdd = _entities.Where(e => e.Value == RecordStatus.New || e.Value == RecordStatus.Changed);
+				var linesToAdd = entitiesToAdd.Select(pair => pair.Key.ToLine(_separator)).ToList();
+				_lineFile.AddLines(linesToAdd.ToArray());
+			}
 		}
 		#endregion
 	}

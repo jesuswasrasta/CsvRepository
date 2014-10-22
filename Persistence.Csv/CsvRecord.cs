@@ -1,5 +1,8 @@
 ﻿namespace Persistence.Csv
 {
+	/// <summary>
+	/// Defines a record in a CSV file.
+	/// </summary>
 	public abstract class CsvRecord : EntityBase
 	{
 		/// <summary>
