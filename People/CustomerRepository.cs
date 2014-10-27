@@ -25,11 +25,6 @@ namespace People
 	/// <typeparam name="T"></typeparam>
 	public class CustomerRepository<T> : ICsvRepository<T> where T : CustomerRecord, new()
 	{
-		#region Costants
-		private const int BufferSize = 64 * 1024;
-		#endregion
-		
-
 		#region Fields
 		private readonly ILineFile _lineFile;
 		private readonly char _separator;
@@ -38,8 +33,7 @@ namespace People
 
 		private bool _disposed;
 		private bool _opened;
-		private static readonly object _openLock = new object();
-		//private Timer _timer;
+		private readonly object _openLock = new object();
 		#endregion
 
 
@@ -54,11 +48,6 @@ namespace People
 			_separator = separator;
 			_hasHeader = hasHeader;
 			_entities = new Dictionary<T, RecordStatus>();
-
-			//_timer = new Timer();
-			//_timer.AutoReset = true;
-			//_timer.Interval = 1000;
-			//_timer.Elapsed += UpdateFile;
 		}
 		#endregion
 
@@ -95,7 +84,6 @@ namespace People
 				}
 
 				_opened = true;
-				//_timer.Start();
 			}
 		}
 
@@ -161,10 +149,8 @@ namespace People
 					return;
 				}
 
-				//_timer.Stop();
-				UpdateFile(this, null);
-				
 				//BUG: and the header?!
+				UpdateFile(this, null);			
 
 				_opened = false;
 			}
@@ -172,7 +158,6 @@ namespace People
 
 		public void Dispose()
 		{
-			Close();
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
@@ -195,6 +180,7 @@ namespace People
 
 		~CustomerRepository()
 		{
+			Close();
 			Dispose(false);
 		}
 		#endregion
