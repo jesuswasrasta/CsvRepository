@@ -56,7 +56,7 @@ namespace Persistence.Csv
 			{
 				using (var fileStream = new FileStream(_fullpath, FileMode.OpenOrCreate, FileSystemRights.FullControl, FileShare.Read, 4096, FileOptions.None))
 				{
-					//fs.Lock(0, fs.Length);
+					fileStream.Seek(0, SeekOrigin.End); //Accoda...
 					using (var sw = new StreamWriter(fileStream))
 					{
 						sw.AutoFlush = true;
@@ -90,6 +90,22 @@ namespace Persistence.Csv
 			}
 			_eventWaitHandle.Set();
 			return lines;
+		}
+
+		public string ReadLine(int index)
+		{
+			_eventWaitHandle.WaitOne();
+			string line = string.Empty;
+			lock (_fileAccessLocker)
+			{
+				var lines = File.ReadAllLines(_fullpath);
+				if (lines.Length > 0)
+				{
+					line = lines.Skip(index).Take(1).First();	
+				}
+			}
+			_eventWaitHandle.Set();
+			return line;
 		}
 
 		public void DeleteLine(string line)

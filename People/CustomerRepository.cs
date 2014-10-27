@@ -1,7 +1,6 @@
 ﻿#region Usings
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -26,14 +25,15 @@ namespace People
 	public class CustomerRepository<T> : ICsvRepository<T> where T : CustomerRecord, new()
 	{
 		#region Fields
+		private bool _disposed;
+		private readonly object _openLock = new object();
+		private readonly object _flushLocker = new object();
+		private bool _opened;
+	
 		private readonly ILineFile _lineFile;
 		private readonly char _separator;
 		private readonly bool _hasHeader;
 		private readonly IDictionary<T, RecordStatus> _entities;
-
-		private bool _disposed;
-		private bool _opened;
-		private readonly object _openLock = new object();
 		#endregion
 
 
@@ -136,6 +136,37 @@ namespace People
 			_entities.Add(new KeyValuePair<T, RecordStatus>(entity, RecordStatus.Deleted));
 		}
 
+		public void Flush()
+		{
+			lock (_flushLocker)
+			{
+				//Delete lines from file
+				var entitiesToDelete = _entities.Where(e => e.Value == RecordStatus.Deleted || e.Value == RecordStatus.Changed);
+				var linesToDelete = entitiesToDelete.Select(pair => pair.Key.ToLine(_separator)).ToList();
+				_lineFile.DeleteLines(linesToDelete.ToArray());
+
+				//Header
+				if (_hasHeader)
+				{
+					var firstEntityHeader = _entities.FirstOrDefault().Key.GetHeader(_separator);
+					var header = _lineFile.ReadLine(0);
+					if (string.IsNullOrEmpty(header))
+					{
+						_lineFile.AddLine(firstEntityHeader);
+					}
+					else if (header != firstEntityHeader)
+					{
+						_lineFile.AddLine(firstEntityHeader);
+					}
+				}
+
+				//Adds lines to file
+				var entitiesToAdd = _entities.Where(e => e.Value == RecordStatus.New || e.Value == RecordStatus.Changed);
+				var linesToAdd = entitiesToAdd.Select(pair => pair.Key.ToLine(_separator)).ToList();
+				_lineFile.AddLines(linesToAdd.ToArray());
+			}
+		}
+
 		public void Close()
 		{
 			if (!_opened)
@@ -149,9 +180,7 @@ namespace People
 					return;
 				}
 
-				//BUG: and the header?!
-				UpdateFile(this, null);			
-
+				Flush();
 				_opened = false;
 			}
 		}
@@ -180,50 +209,12 @@ namespace People
 
 		~CustomerRepository()
 		{
-			Close();
 			Dispose(false);
 		}
 		#endregion
 
 
 		#region Private Methods
-		private string GetHeader()
-		{
-			var sb = new StringBuilder();
-			var propertyInfos = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-			var properties = new List<PropertyInfo>(propertyInfos);
-			var comparer = new FieldAttributeComparer();
-			properties.Sort(comparer);
-
-			foreach (PropertyInfo propertyInfo in properties)
-			{
-				var fieldAttribute = propertyInfo.GetCustomAttributes(typeof(FieldAttribute), false).FirstOrDefault() as FieldAttribute;
-				if (fieldAttribute != null)
-				{
-					var propertyName = propertyInfo.Name;
-					sb.AppendFormat("{0}{1}", propertyName, _separator);
-				}
-			}
-			sb.Append(Environment.NewLine);
-			return sb.ToString();
-		}
-
-
-		private void UpdateFile(object sender, ElapsedEventArgs args)
-		{
-			lock (_openLock)
-			{
-				//Delete lines from file
-				var entitiesToDelete = _entities.Where(e => e.Value == RecordStatus.Deleted || e.Value == RecordStatus.Changed);
-				var linesToDelete = entitiesToDelete.Select(pair => pair.Key.ToLine(_separator)).ToList();
-				_lineFile.DeleteLines(linesToDelete.ToArray());
-
-				//Adds lines to file
-				var entitiesToAdd = _entities.Where(e => e.Value == RecordStatus.New || e.Value == RecordStatus.Changed);
-				var linesToAdd = entitiesToAdd.Select(pair => pair.Key.ToLine(_separator)).ToList();
-				_lineFile.AddLines(linesToAdd.ToArray());
-			}
-		}
 		#endregion
 	}
 }

@@ -13,14 +13,16 @@ namespace Persistence.Csv
 	/// </summary>
 	public interface ILineFile : IDisposable
 	{
-		IList<string> ReadAllLines();
+		void AddLine(string line);
+
+		void AddLines(string[] lines);
 
 		void DeleteLine(string line);
 
 		void DeleteLines(string[] lines);
 
-		void AddLine(string line);
+		IList<string> ReadAllLines();
 
-		void AddLines(string[] lines);
+		string ReadLine(int index);
 	}
 }

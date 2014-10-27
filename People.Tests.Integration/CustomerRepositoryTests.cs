@@ -116,7 +116,7 @@ namespace People.Tests.Integration
 		}
 
 		[Test(Description = "Add a customer to the csv file and then tries to load it from")]
-		public void AddAndRetrieveOfACustomer()
+		public void AddAndRetrieveACustomer()
 		{
 			var customer = new CustomerRecord
 			{
@@ -127,15 +127,15 @@ namespace People.Tests.Integration
 
 			var csvFile = Path.GetTempFileName();
 			var lineFile = new LineFile(csvFile);
-			var repo = new CustomerRepository<CustomerRecord>(lineFile, ';');
+			var repo = new CustomerRepository<CustomerRecord>(lineFile, ';', true);
 			repo.Open();
-
 			repo.Store(customer);
+			repo.Flush();
 
 			var func = new Func<CustomerRecord, bool>(f => f.Lastname == "Gosling");
-			var customerResult = repo.Select(func);
+			var customerResult = repo.Select(func).FirstOrDefault();
 
-			Assert.AreEqual(customer, customerResult.FirstOrDefault());
+			Assert.AreEqual(customer, customerResult);
 		}
 		#endregion
 	}

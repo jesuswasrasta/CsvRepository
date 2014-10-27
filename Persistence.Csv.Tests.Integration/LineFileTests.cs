@@ -74,6 +74,33 @@ namespace Persistence.Csv.Tests.Integration
 		#endregion
 
 
+		#region ReadLine(int)
+		[Test(Description = "Read a specific line")]
+		[TestCase(14)]
+		[TestCase(16)]
+		[TestCase(17)]
+		[TestCase(123)]
+		[TestCase(345)]
+		public void ReadLine(int number)
+		{
+			var filename = Path.Combine(Path.GetTempPath(), string.Format("{0}.txt", DateTime.Now.Ticks));
+			var lineFileWriter = new LineFile(filename);
+
+			var lines = new List<string>();
+			for (int i = 0; i < 1000; i++)
+			{
+				lines.Add(i.ToString());
+			}
+			lineFileWriter.AddLines(lines.ToArray());
+
+			var line = lineFileWriter.ReadLine(number);
+
+			Assert.AreEqual(number.ToString(), line);
+		}
+		#endregion
+
+
+
 		#region ReadAllLines()
 		[Test(Description = "Reading all lines")]
 		public void ReadAllLines()

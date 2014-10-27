@@ -25,7 +25,7 @@ namespace People
 		[Field(1, "Lastname of the customer")]
 		public string Lastname { get; set; }
 
-		[Field(2, "Birthday of the cusotmer")]
+		[Field(2, "Birthday of the customer")]
 		public string BirthDay { get; set; }
 		#endregion
 
