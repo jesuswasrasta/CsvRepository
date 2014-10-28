@@ -76,7 +76,7 @@ namespace Persistence.Csv
 			var lines = new List<string>();
 			lock (_fileAccessLocker)
 			{
-				using (var fileStream = new FileStream(_fullpath, FileMode.OpenOrCreate, FileSystemRights.FullControl, FileShare.Read, 4096, FileOptions.SequentialScan))
+				using (var fileStream = new FileStream(_fullpath, FileMode.OpenOrCreate, FileSystemRights.Read, FileShare.Read, 4096, FileOptions.SequentialScan))
 				{
 					using (var sr = new StreamReader(fileStream))
 					{
