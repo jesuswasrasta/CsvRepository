@@ -4,13 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F225E839-07B8-4CD8-9E17-E01916759AE5}</ProjectGuid>
+    <ProjectGuid>{F2AAB0FC-373E-4678-8410-2D7464C6BBF0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Farmaci</RootNamespace>
-    <AssemblyName>Farmaci</AssemblyName>
+    <RootNamespace>People</RootNamespace>
+    <AssemblyName>People</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -49,24 +50,21 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FarmaciRepository.cs" />
-    <Compile Include="FarmacoRecord.cs" />
+    <Compile Include="CustomerRepository.cs" />
+    <Compile Include="CustomerRecord.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Persistence.Csv\Persistence.Csv.csproj">
-      <Project>{A76420AE-CBEF-4402-BA89-4FBFCBD6144A}</Project>
+      <Project>{a76420ae-cbef-4402-ba89-4fbfcbd6144a}</Project>
       <Name>Persistence.Csv</Name>
     </ProjectReference>
     <ProjectReference Include="..\Persistence\Persistence.csproj">
-      <Project>{7EE1E937-0EE5-4684-A904-D5D065CC463D}</Project>
+      <Project>{7ee1e937-0ee5-4684-a904-d5d065cc463d}</Project>
       <Name>Persistence</Name>
     </ProjectReference>
   </ItemGroup>
