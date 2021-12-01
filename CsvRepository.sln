@@ -7,13 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Persistence", "Persistence\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Persistence.Csv", "Persistence.Csv\Persistence.Csv.csproj", "{A76420AE-CBEF-4402-BA89-4FBFCBD6144A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{DCA6FB65-809D-4D60-9671-CCB0B3C60DEA}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "People", "People\People.csproj", "{F2AAB0FC-373E-4678-8410-2D7464C6BBF0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "People.Tests.Unit", "People.Tests.Unit\People.Tests.Unit.csproj", "{A5FFA19E-B658-4CE9-A8DD-9E6A02683A0F}"
