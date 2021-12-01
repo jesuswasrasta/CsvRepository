@@ -54,7 +54,7 @@ namespace Persistence.Csv
 			_eventWaitHandle.WaitOne();
 			lock (_fileAccessLocker)
 			{
-				using (var fileStream = new FileStream(_fullpath, FileMode.OpenOrCreate, FileSystemRights.FullControl, FileShare.Read, 4096, FileOptions.None))
+				using (var fileStream = new FileStream(_fullpath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read, 4096, FileOptions.None))
 				{
 					fileStream.Seek(0, SeekOrigin.End); //Accoda...
 					using (var sw = new StreamWriter(fileStream))
@@ -76,7 +76,7 @@ namespace Persistence.Csv
 			var lines = new List<string>();
 			lock (_fileAccessLocker)
 			{
-				using (var fileStream = new FileStream(_fullpath, FileMode.OpenOrCreate, FileSystemRights.Read, FileShare.Read, 4096, FileOptions.SequentialScan))
+				using (var fileStream = new FileStream(_fullpath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read, 4096, FileOptions.SequentialScan))
 				{
 					using (var sr = new StreamReader(fileStream))
 					{
@@ -130,7 +130,7 @@ namespace Persistence.Csv
 			_eventWaitHandle.WaitOne();
 			lock (_fileAccessLocker)
 			{
-				using (var fileStream = new FileStream(_fullpath, FileMode.Open, FileSystemRights.FullControl, FileShare.ReadWrite, 4096, FileOptions.SequentialScan))
+				using (var fileStream = new FileStream(_fullpath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.SequentialScan))
 				{
 					fileStream.SetLength(0); //Empty file
 					using (var sw = new StreamWriter(fileStream))
